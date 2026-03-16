@@ -106,12 +106,35 @@ Dates use ISO format: `YYYY-MM-DD` or full ISO 8601 datetime.
 
 ## Authentication
 
+### Device Flow (default)
+
+The default login opens your browser for approval — no password needed in the terminal:
+
+```bash
+# Opens browser, shows code, waits for approval
+vcli auth login
+```
+
+The CLI will:
+1. Request a device code from the server
+2. Open your browser to the approval page with the code pre-filled
+3. Show the URL and code as a fallback if the browser doesn't open
+4. Poll until you approve in the browser
+
+### Password Login
+
+Pass an identifier and/or `--password` to use direct password auth:
+
+```bash
+vcli auth login you@example.com --password 'secret'
+vcli auth login yourname --password 'secret'
+```
+
+### Other Auth Commands
+
 ```bash
 # Sign up
 vcli auth signup --email you@example.com --username yourname --password 'secret'
-
-# Log in (accepts email or username)
-vcli auth login you@example.com --password 'secret'
 
 # Check current session
 vcli auth whoami
