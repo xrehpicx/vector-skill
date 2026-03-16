@@ -41,6 +41,36 @@ Every command accepts these flags:
 | `--profile <name>` | CLI profile (default: `default`) |
 | `--json` | Output as JSON for scripting |
 
+## List Filtering, Sorting, and Links
+
+All entity list commands (`issue list`, `project list`, `team list`, `document list`, `folder list`) support:
+
+| Flag | Description |
+|---|---|
+| `--limit <n>` | Maximum number of results |
+| `--created-after <date>` | Filter: created on or after date (ISO format) |
+| `--created-before <date>` | Filter: created on or before date (ISO format) |
+| `--sort <field>` | Sort by field (e.g. `createdAt`, `title`, `name`, `key`) |
+| `--order <direction>` | Sort direction: `asc` or `desc` (default: `asc`) |
+
+Documents also support `--updated-after` and `--updated-before` for filtering by last edited time.
+
+List output includes a `url` field linking to each entity in the web app.
+
+```bash
+# Issues created in the last week, newest first
+vcli issue list --created-after 2025-03-10 --sort createdAt --order desc
+
+# Top 5 projects by name
+vcli project list --sort name --limit 5
+
+# Documents edited since a date
+vcli document list --updated-after 2025-03-01 --sort lastEditedAt --order desc
+
+# Teams created before a date
+vcli team list --created-before 2025-01-01 --limit 10
+```
+
 ## Core Concepts
 
 ### Convex URL Auto-Resolution
@@ -159,7 +189,7 @@ vcli invite decline <inviteId>
 ## Teams
 
 ```bash
-# List teams
+# List teams (supports --limit, --created-after/before, --sort, --order)
 vcli team list
 
 # Get team details
@@ -186,7 +216,7 @@ vcli team set-lead eng alice@example.com
 ## Projects
 
 ```bash
-# List projects (optionally filter by team)
+# List projects (supports --limit, --created-after/before, --sort, --order)
 vcli project list --team eng
 
 # Get project details
@@ -217,7 +247,7 @@ Clear optional fields with `--clear-*` flags (e.g., `--clear-team`, `--clear-due
 ### CRUD
 
 ```bash
-# List issues (filter by project and/or team)
+# List issues (supports --limit, --created-after/before, --sort, --order)
 vcli issue list --project api --team eng --limit 50
 
 # Get issue details
@@ -282,7 +312,7 @@ vcli issue create --title "Sub-task" --parent API-1 --project api
 ## Documents
 
 ```bash
-# List documents
+# List documents (supports --limit, --created-after/before, --updated-after/before, --sort, --order)
 vcli document list --folder-id <folderId>
 
 # Get document details
