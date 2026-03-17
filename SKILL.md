@@ -33,25 +33,25 @@ After installing, the `vcli` binary is available globally.
 
 Every command accepts these flags:
 
-| Flag | Description |
-|---|---|
-| `--app-url <url>` | Vector app URL (or set `NEXT_PUBLIC_APP_URL`) |
+| Flag                 | Description                                                                         |
+| -------------------- | ----------------------------------------------------------------------------------- |
+| `--app-url <url>`    | Vector app URL (or set `NEXT_PUBLIC_APP_URL`)                                       |
 | `--convex-url <url>` | Convex deployment URL (auto-resolved from app URL, or set `NEXT_PUBLIC_CONVEX_URL`) |
-| `--org <slug>` | Organization slug override |
-| `--profile <name>` | CLI profile (default: `default`) |
-| `--json` | Output as JSON for scripting |
+| `--org <slug>`       | Organization slug override                                                          |
+| `--profile <name>`   | CLI profile (default: `default`)                                                    |
+| `--json`             | Output as JSON for scripting                                                        |
 
 ## List Filtering, Sorting, and Links
 
 All entity list commands (`issue list`, `project list`, `team list`, `document list`, `folder list`) support:
 
-| Flag | Description |
-|---|---|
-| `--limit <n>` | Maximum number of results |
-| `--created-after <date>` | Filter: created on or after date (ISO format) |
-| `--created-before <date>` | Filter: created on or before date (ISO format) |
-| `--sort <field>` | Sort by field (e.g. `createdAt`, `title`, `name`, `key`) |
-| `--order <direction>` | Sort direction: `asc` or `desc` (default: `asc`) |
+| Flag                      | Description                                              |
+| ------------------------- | -------------------------------------------------------- |
+| `--limit <n>`             | Maximum number of results                                |
+| `--created-after <date>`  | Filter: created on or after date (ISO format)            |
+| `--created-before <date>` | Filter: created on or before date (ISO format)           |
+| `--sort <field>`          | Sort by field (e.g. `createdAt`, `title`, `name`, `key`) |
+| `--order <direction>`     | Sort direction: `asc` or `desc` (default: `asc`)         |
 
 Documents also support `--updated-after` and `--updated-before` for filtering by last edited time.
 
@@ -116,6 +116,7 @@ vcli auth login
 ```
 
 The CLI will:
+
 1. Request a device code from the server
 2. Open your browser to the approval page with the code pre-filled
 3. Show the URL and code as a fallback if the browser doesn't open
@@ -578,6 +579,7 @@ vcli --json notification inbox --filter unread | jq 'length'
 ```
 
 Tips for scripting:
+
 - Always use `--json` for parseable output
 - Always use explicit `--profile` and `--org` flags
 - Use `refdata` to discover valid keys before mutations
@@ -586,11 +588,11 @@ Tips for scripting:
 
 ## Troubleshooting
 
-| Error | Fix |
-|---|---|
-| `Not logged in` | Run `vcli auth login` or `vcli auth signup` |
-| `app URL is required` | Pass `--app-url <url>`, set `NEXT_PUBLIC_APP_URL`, or log in once with `--app-url` so the profile stores it |
-| `Organization slug is required` | Pass `--org <slug>` or run `vcli org use <slug>` |
-| Auth errors against wrong server | Verify `--app-url` matches the running app origin |
-| Convex connection errors | Usually auto-resolved from the app URL. If not, check `NEXT_PUBLIC_CONVEX_URL` or pass `--convex-url` |
-| Validation errors on create/update | Check keys, slugs, and required options. Use `vcli refdata` to discover valid values first |
+| Error                              | Fix                                                                                                         |
+| ---------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `Not logged in`                    | Run `vcli auth login` or `vcli auth signup`                                                                 |
+| `app URL is required`              | Pass `--app-url <url>`, set `NEXT_PUBLIC_APP_URL`, or log in once with `--app-url` so the profile stores it |
+| `Organization slug is required`    | Pass `--org <slug>` or run `vcli org use <slug>`                                                            |
+| Auth errors against wrong server   | Verify `--app-url` matches the running app origin                                                           |
+| Convex connection errors           | Usually auto-resolved from the app URL. If not, check `NEXT_PUBLIC_CONVEX_URL` or pass `--convex-url`       |
+| Validation errors on create/update | Check keys, slugs, and required options. Use `vcli refdata` to discover valid values first                  |
