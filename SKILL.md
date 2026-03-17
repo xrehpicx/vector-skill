@@ -326,6 +326,9 @@ vcli issue set-estimates API-1 --values "todo=4,in_progress=8"
 # Add a comment
 vcli issue comment API-1 --body "Looks good, shipping tomorrow"
 
+# Link a GitHub PR, issue, or commit by URL
+vcli issue link-github API-1 "https://github.com/acme/api/pull/123"
+
 # Create a sub-issue
 vcli issue create --title "Sub-task" --parent API-1 --project api
 ```
