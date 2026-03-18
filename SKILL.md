@@ -334,6 +334,87 @@ vcli issue link-github API-1 "https://github.com/acme/api/pull/123"
 vcli issue create --title "Sub-task" --parent API-1 --project api
 ```
 
+### Agent Bridge Service
+
+The bridge connects local developer machines to Vector. Local Codex and Claude Code processes show up as **live activities** on issues with bidirectional messaging.
+
+#### Starting the bridge
+
+```bash
+# Log in first
+vcli auth login
+
+# Start the bridge service (registers device, heartbeats, discovers processes)
+vcli service start
+
+# Or install as a macOS LaunchAgent (auto-starts on login)
+vcli bridge start
+```
+
+#### Service management
+
+```bash
+vcli service start      # Run bridge in foreground
+vcli service stop       # Stop the bridge
+vcli service status     # Show bridge status
+vcli service install    # Install as macOS LaunchAgent
+vcli service uninstall  # Remove LaunchAgent
+vcli service logs       # Tail bridge logs
+
+vcli bridge start       # Shortcut: register + install + start
+vcli bridge stop        # Stop + uninstall
+vcli bridge status      # Quick status check
+```
+
+#### How it works
+
+The bridge runs as a local Node.js process using `ConvexHttpClient`:
+
+- **Heartbeat** (30s): Keeps the device marked as online
+- **Command polling** (5s): Picks up messages sent from the Vector issue page
+- **Process discovery** (60s): Finds local Claude Code/Codex processes via `ps`
+- **Live activity cache** (30s): Writes `~/.vector/live-activities.json` for the macOS menu bar
+
+#### macOS menu bar
+
+A native Swift status bar app shows the Vector icon with:
+
+- Bridge status (running/offline)
+- List of active agent sessions with issue keys (click to open in Vector)
+- Start/Stop/Restart controls
+
+```bash
+# Build (requires Xcode CLI tools)
+cd cli/macos && swiftc -o VectorMenuBar VectorMenuBar.swift -framework AppKit
+
+# Run
+./VectorMenuBar
+```
+
+Auto-installed as a LaunchAgent via `vcli service install`.
+
+#### Configuration
+
+All bridge state lives in `~/.vector/`:
+
+| File | Purpose |
+|---|---|
+| `bridge.json` | Device ID, secret, convex URL |
+| `bridge.pid` | Running bridge PID |
+| `bridge.log` | Bridge stdout (LaunchAgent mode) |
+| `live-activities.json` | Cached sessions for menu bar |
+| `cli-default.json` | CLI auth session |
+
+#### Architecture reference
+
+See `docs/architecture/agent-device-bridge/README.md` for the full data model, flows, and security details.
+
+#### Agent branding
+
+- Internal provider key: `claude_code` — visible label: `Claude` or `Claude Agent`
+- Internal provider key: `codex` — visible label: `Codex`
+- Final completion comments include `authorKind: 'agent'` and `agentSource` metadata
+
 ---
 
 ## Documents
