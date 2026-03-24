@@ -1,6 +1,6 @@
 ---
 name: vector-cli
-description: Complete guide to using the Vector CLI (vcli) — a command-line interface for Vector, an open-source project management platform. Covers authentication, organizations, teams, projects, issues, documents, roles, notifications, and scripting workflows.
+description: Complete guide to using the Vector CLI (vcli) — a command-line interface for Vector, an open-source project management platform. Covers authentication, organizations, teams, projects, issues, documents, roles, notifications, user presence/status, and scripting workflows.
 ---
 
 # Vector CLI
@@ -565,6 +565,40 @@ vcli activity document <documentId> --limit 10
 ```
 
 All activity commands support `--cursor` for pagination.
+
+---
+
+## User Presence & Custom Status
+
+Discord-like presence and custom status for your user profile.
+
+### Presence
+
+```bash
+# View your current status
+vcli presence get
+
+# Set presence (online, idle, dnd, invisible)
+vcli presence set online
+vcli presence set dnd
+vcli presence set invisible
+```
+
+### Custom Status
+
+```bash
+# Set a custom status with emoji and text
+vcli presence custom --emoji "🚀" --text "Shipping features"
+
+# Set with auto-clear (30m, 1h, 4h, today, never)
+vcli presence custom --emoji "☕" --text "On a break" --clear-after 30m
+vcli presence custom --emoji "🏠" --text "Working from home" --clear-after today
+
+# Clear custom status
+vcli presence clear
+```
+
+Presence determines the colored dot on your avatar: green (online), amber (idle), red (dnd), gray (invisible/offline). Custom status shows your emoji and text to other org members.
 
 ---
 
