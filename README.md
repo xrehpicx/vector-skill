@@ -1,6 +1,8 @@
-# Vector CLI Skill
+# Vector CLI Task Management Skill
 
 AI agent skill for the [Vector CLI](https://github.com/xrehpicx/vector) (`vcli`) — a command-line interface for [Vector](https://github.com/xrehpicx/vector), an open-source project management platform.
+
+When installed, this skill is identified as `task-management`.
 
 ## Install the Skill
 

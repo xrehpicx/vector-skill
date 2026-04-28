@@ -1,6 +1,6 @@
 ---
-name: vector-cli
-description: Complete guide to using the Vector CLI (vcli) — a command-line interface for Vector, an open-source project management platform. Covers authentication, organizations, teams, projects, issues, documents, roles, notifications, user presence/status, and scripting workflows.
+name: task-management
+description: Task management skill for Vector CLI (vcli) — a command-line interface for Vector, an open-source project management platform. Covers authentication, organizations, teams, projects, issues, documents, roles, notifications, user presence/status, and scripting workflows.
 ---
 
 # Vector CLI
@@ -330,6 +330,9 @@ vcli issue comment API-1 --body "Looks good, shipping tomorrow"
 # Link a GitHub PR, issue, or commit by URL
 vcli issue link-github API-1 "https://github.com/acme/api/pull/123"
 
+# Link the same PR to another issue when one PR covers multiple issues
+vcli issue link-github API-2 "https://github.com/acme/api/pull/123"
+
 # Create a sub-issue
 vcli issue create --title "Sub-task" --parent API-1 --project api
 ```
@@ -397,13 +400,13 @@ Auto-installed as a LaunchAgent via `vcli service install`.
 
 All bridge state lives in `~/.vector/`:
 
-| File | Purpose |
-|---|---|
-| `bridge.json` | Device ID, secret, convex URL |
-| `bridge.pid` | Running bridge PID |
-| `bridge.log` | Bridge stdout (LaunchAgent mode) |
-| `live-activities.json` | Cached sessions for menu bar |
-| `cli-default.json` | CLI auth session |
+| File                   | Purpose                          |
+| ---------------------- | -------------------------------- |
+| `bridge.json`          | Device ID, secret, convex URL    |
+| `bridge.pid`           | Running bridge PID               |
+| `bridge.log`           | Bridge stdout (LaunchAgent mode) |
+| `live-activities.json` | Cached sessions for menu bar     |
+| `cli-default.json`     | CLI auth session                 |
 
 #### Architecture reference
 
