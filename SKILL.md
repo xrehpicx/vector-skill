@@ -339,7 +339,7 @@ vcli issue create --title "Sub-task" --parent API-1 --project api
 
 ### Agent Bridge Service
 
-The bridge connects local developer machines to Vector. Local Codex and Claude Code sessions show up as **live activities** on issues with bidirectional messaging. For managed Codex/Claude launches, the CLI owns the provider session directly and syncs agent events back to Convex; terminal/tmux integration is still available for attached shell sessions.
+The bridge connects local developer machines to Vector. Local Codex, Claude Code, Cursor, GitHub Copilot, OpenCode, and Pi sessions show up as **live activities** on issues with bidirectional messaging. For managed launches, the CLI owns the provider session directly and syncs agent events back to Convex; terminal/tmux integration is still available for attached shell sessions.
 
 #### Starting the bridge
 
@@ -375,8 +375,9 @@ The bridge runs as a local Node.js process using `ConvexHttpClient`:
 
 - **Heartbeat** (30s): Keeps the device marked as online
 - **Command polling** (5s): Picks up messages sent from the Vector issue page
-- **Agent event sync**: Sends assistant, reasoning, tool, status, and error events from Codex/Claude sessions back to Convex
-- **Process discovery** (60s): Finds local Claude Code/Codex/tmux processes via `ps`
+- **Agent event sync**: Sends assistant, reasoning, tool, status, auth, compaction, and error events from local agent sessions back to Convex
+- **Cells-style session state**: Syncs model, permission mode, thinking level, fast mode, context length, queued messages, pending approvals, pending questions, plans, and usage through Convex
+- **Process discovery** (60s): Finds local agent/tmux processes via `ps`
 - **Live activity cache** (30s): Writes `~/.vector/live-activities.json` for the macOS menu bar
 
 #### macOS menu bar
@@ -415,9 +416,23 @@ See `docs/architecture/agent-device-bridge/README.md` for the full data model, f
 
 #### Agent branding
 
-- Internal provider key: `claude_code` — visible label: `Claude` or `Claude Agent`
 - Internal provider key: `codex` — visible label: `Codex`
+- Internal provider key: `claude_code` — visible label: `Claude` or `Claude Agent`
+- Internal provider key: `cursor` — visible label: `Cursor`
+- Internal provider key: `copilot` — visible label: `GitHub Copilot`
+- Internal provider key: `opencode` — visible label: `OpenCode`
+- Internal provider key: `pi` — visible label: `Pi`
+- Internal provider key: `vector_cli` — visible label: `Vector CLI` for manual shell sessions
 - Final completion comments include `authorKind: 'agent'` and `agentSource` metadata
+
+Provider requirements:
+
+- Codex requires the `codex` CLI.
+- Claude requires Claude credentials usable by the Claude Agent SDK.
+- Cursor uses `cursor-agent` for the CLI-owned fallback path.
+- Copilot uses the local Copilot CLI/SDK credentials.
+- OpenCode uses the `opencode` CLI.
+- Pi uses the local `pi` CLI when available.
 
 ---
 
