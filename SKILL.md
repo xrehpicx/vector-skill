@@ -339,7 +339,7 @@ vcli issue create --title "Sub-task" --parent API-1 --project api
 
 ### Agent Bridge Service
 
-The bridge connects local developer machines to Vector. Local Codex and Claude Code processes show up as **live activities** on issues with bidirectional messaging.
+The bridge connects local developer machines to Vector. Local Codex and Claude Code sessions show up as **live activities** on issues with bidirectional messaging. For managed Codex/Claude launches, the CLI owns the provider session directly and syncs agent events back to Convex; terminal/tmux integration is still available for attached shell sessions.
 
 #### Starting the bridge
 
@@ -375,7 +375,8 @@ The bridge runs as a local Node.js process using `ConvexHttpClient`:
 
 - **Heartbeat** (30s): Keeps the device marked as online
 - **Command polling** (5s): Picks up messages sent from the Vector issue page
-- **Process discovery** (60s): Finds local Claude Code/Codex processes via `ps`
+- **Agent event sync**: Sends assistant, reasoning, tool, status, and error events from Codex/Claude sessions back to Convex
+- **Process discovery** (60s): Finds local Claude Code/Codex/tmux processes via `ps`
 - **Live activity cache** (30s): Writes `~/.vector/live-activities.json` for the macOS menu bar
 
 #### macOS menu bar
