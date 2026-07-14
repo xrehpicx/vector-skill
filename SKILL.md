@@ -25,7 +25,7 @@ yarn global add @rehpic/vcli
 bun add -g @rehpic/vcli
 ```
 
-Requires Node.js >= 20.19.0.
+Requires Node.js >= 22.19.0.
 
 After installing, the `vcli` binary is available globally.
 
