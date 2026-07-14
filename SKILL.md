@@ -795,8 +795,10 @@ vcli org create --name "Acme" --slug acme
 vcli org use acme
 vcli team create --key eng --name "Engineering"
 vcli project create --key api --name "API" --team eng
-vcli request create --title "First request" --expected-output "A delivered, reviewable outcome"
-vcli work create --title "Deliver the first request" --request REQ-1
+REQUEST_KEY="$(vcli --json request create \
+  --title "First request" \
+  --expected-output "A delivered, reviewable outcome" | jq -r '.requestKey')"
+vcli work create --title "Deliver the first request" --request "$REQUEST_KEY"
 vcli auth whoami
 ```
 
