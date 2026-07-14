@@ -63,11 +63,22 @@ Legacy and supporting entity list commands (`issue list`, `project list`, `team 
 
 Documents also support `--updated-after` and `--updated-before` for filtering by last edited time.
 
+Request and Work lists use purpose-built scopes plus `--limit`:
+
+| Command             | Valid scopes                            | Default  |
+| ------------------- | --------------------------------------- | -------- |
+| `vcli request list` | `inbox`, `mine`, `requested`, or `all`  | `inbox`  |
+| `vcli work list`    | `active`, `mine`, `attention`, or `all` | `active` |
+
+They do not currently expose the generic date and sort flags in the table above.
+
 List output includes a `url` field linking to each entity in the web app.
 
 ```bash
-# Active Work assigned to you
+# Active Work across the workspace
 vcli work list --scope active
+
+# Work assigned to you
 vcli work list --scope mine
 
 # Top 5 projects by name
@@ -345,7 +356,8 @@ vcli work handoff AUTH-42 bob@example.com \
   --note "Start from Task #4"
 vcli work respond-handoff <handoffId> --accept true
 
-# Acceptance does not start the new owner's execution period.
+# Acceptance does not start the new owner's period. Start it explicitly even
+# when the aggregate Work remained active through the handoff.
 vcli work start AUTH-42
 
 vcli work ready-for-review AUTH-42
@@ -377,6 +389,10 @@ vcli task assign AUTH-42 2  # Clear assignee
 ```
 
 Never invent an execution id or attribute a human-created Task to an agent. If no live execution is available, omit `--execution`; the Task is recorded as human/CLI-created.
+
+The CLI and backend expose this identifier as a live activity id
+(`liveActivityId`); product UI and this skill call the same record an agent
+execution.
 
 ---
 
