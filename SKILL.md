@@ -347,6 +347,9 @@ vcli work status AUTH-42 active
 vcli work context AUTH-42
 vcli work context AUTH-42 --task 3
 
+# Subscribe to only the changes this agent is waiting for
+vcli work watch AUTH-42 --events tasks,requests
+
 # Ask a human to look. Agents should pass their live execution id.
 vcli work attention AUTH-42 \
   --title "Choose redirect behavior" \
@@ -373,6 +376,32 @@ vcli work complete AUTH-42
 ```
 
 `work context` returns linked Requests and their expected outputs, Tasks, ownership and handoff history, blockers, open attention requests, GitHub development evidence, recent activity, and attached executions. Prefer it over assembling context from unrelated workspace searches.
+
+### Watch Work for changes
+
+Use a real-time watcher when an agent should wait for another actor, Task, or
+Request instead of repeatedly polling `work context`:
+
+```bash
+# Human-readable continuous stream; Ctrl+C stops it
+vcli work watch AUTH-42
+
+# Wait for one relevant change, emit one NDJSON object, and bound the wait
+vcli --json work watch AUTH-42 \
+  --events tasks,requests,attention \
+  --once \
+  --timeout 1800
+```
+
+Categories are `work`, `tasks`, `requests`, `attention`, `handoffs`, and
+`executions`; `all` is the default. Events are granular, including
+`task.completed`, `request.added`, and the corresponding `added`, `updated`,
+and `removed` events. Global `--json` uses NDJSON: each new event is a single
+JSON line, not one long-lived JSON array. Add `--initial` only when the agent
+also needs the complete current snapshot before waiting.
+
+Prefer `work watch` over a shell polling loop. Use `--once` for a single wakeup
+and omit it when the agent needs a continuous event stream.
 
 ## Tasks
 
