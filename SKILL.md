@@ -308,8 +308,11 @@ vcli request create \
 vcli request route REQ-12 "alice@example.com,bob@example.com"
 vcli request claim REQ-12
 
-# A Request can be fulfilled by existing or newly created Work
-vcli request link-work REQ-12 AUTH-42
+# A Request can be fulfilled by existing or newly created Work.
+# `fulfills` participates in the requester review roll-up; `contributes`
+# attaches useful context without blocking that roll-up.
+vcli request link-work REQ-12 AUTH-42 --relation fulfills
+vcli request link-work REQ-12 DOCS-7 --relation contributes
 
 # Requester review loop
 vcli request request-changes REQ-12 --note "SCIM provisioning is still missing"
