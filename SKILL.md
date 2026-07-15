@@ -79,7 +79,7 @@ linking to each entity in the web app. Request list output currently does not.
 # Active Work across the workspace
 vcli work list --scope active
 
-# Work assigned to you
+# Work you own
 vcli work list --scope mine
 
 # Top 5 projects by name
