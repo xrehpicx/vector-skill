@@ -477,7 +477,7 @@ vcli issue link-github API-2 "https://github.com/acme/api/pull/123"
 vcli issue create --title "Sub-task" --parent API-1 --project api
 ```
 
-### Agent Bridge Service
+## Agent Bridge Service
 
 The bridge connects local developer machines to Vector. Local Codex, Claude Code, Cursor, GitHub Copilot, OpenCode, and Pi sessions show up as **live executions** on Work with bidirectional messaging. Attaching or launching an execution does not change the Work status. For managed launches, the CLI owns the provider session directly and syncs agent events back to Convex; terminal/tmux integration is still available for attached shell sessions.
 
@@ -497,7 +497,8 @@ vcli bridge start
 #### Service management
 
 ```bash
-vcli service start      # Run bridge in foreground
+vcli service start      # Register the device and start the background service
+vcli service run        # Run the bridge in the foreground
 vcli service stop       # Stop the bridge
 vcli service status     # Show bridge status
 vcli service install    # Install as macOS LaunchAgent
@@ -852,7 +853,7 @@ vcli permission check issue:create         # Verify permissions
 ```bash
 # Pipe to jq for structured processing
 vcli --json work list --org acme | jq '.[].title'
-vcli --json notification inbox --filter unread | jq 'length'
+vcli --json notification inbox --filter unread | jq '.page | length'
 ```
 
 Tips for scripting:
