@@ -481,7 +481,7 @@ vcli issue create --title "Sub-task" --parent API-1 --project api
 
 The bridge connects local developer machines to Vector. Local Codex, Claude Code, Cursor, GitHub Copilot, OpenCode, and Pi sessions show up as **live executions** on Work with bidirectional messaging. Attaching or launching an execution does not change the Work status. For managed launches, the CLI owns the provider session directly and syncs agent events back to Convex; terminal/tmux integration is still available for attached shell sessions.
 
-#### Starting the bridge
+### Starting the bridge
 
 ```bash
 # Log in first
@@ -494,7 +494,7 @@ vcli service start
 vcli bridge start
 ```
 
-#### Service management
+### Service management
 
 ```bash
 vcli service start      # Register the device and start the background service
@@ -510,7 +510,7 @@ vcli bridge stop        # Stop + uninstall
 vcli bridge status      # Quick status check
 ```
 
-#### How it works
+### How it works
 
 The bridge runs as a local Node.js process using `ConvexHttpClient`:
 
@@ -519,9 +519,9 @@ The bridge runs as a local Node.js process using `ConvexHttpClient`:
 - **Agent event sync**: Sends assistant, reasoning, tool, status, auth, compaction, and error events from local agent sessions back to Convex
 - **Cells-style session state**: Syncs model, permission mode, thinking level, fast mode, context length, queued messages, pending approvals, pending questions, plans, and usage through Convex
 - **Process discovery** (60s): Finds local agent/tmux processes via `ps`
-- **Live activity cache** (30s): Writes `~/.vector/live-activities.json` for the macOS menu bar
+- **Live activity cache** (5s): Writes `~/.vector/live-activities.json` for the macOS menu bar
 
-#### macOS menu bar
+### macOS menu bar
 
 A native Swift status bar app shows the Vector icon with:
 
@@ -539,7 +539,7 @@ cd cli/macos && swiftc -o VectorMenuBar VectorMenuBar.swift -framework AppKit
 
 Auto-installed as a LaunchAgent via `vcli service install`.
 
-#### Configuration
+### Configuration
 
 All bridge state lives in `~/.vector/`:
 
@@ -551,11 +551,11 @@ All bridge state lives in `~/.vector/`:
 | `live-activities.json` | Cached sessions for menu bar     |
 | `cli-default.json`     | CLI auth session                 |
 
-#### Architecture reference
+### Architecture reference
 
 See `docs/architecture/agent-device-bridge/README.md` for the full data model, flows, and security details.
 
-#### Agent branding
+### Agent branding
 
 - Internal provider key: `codex` — visible label: `Codex`
 - Internal provider key: `claude_code` — visible label: `Claude` or `Claude Agent`
