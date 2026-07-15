@@ -479,7 +479,7 @@ vcli issue create --title "Sub-task" --parent API-1 --project api
 
 ## Agent Bridge Service
 
-The bridge connects local developer machines to Vector. Local Codex, Claude Code, Cursor, GitHub Copilot, OpenCode, and Pi sessions show up as **live executions** on Work with bidirectional messaging. Attaching or launching an execution does not change the Work status. For managed launches, the CLI owns the provider session directly and syncs agent events back to Convex; terminal/tmux integration is still available for attached shell sessions.
+The bridge connects local developer machines to Vector. Local Codex, Claude Code, Cursor, GitHub Copilot, OpenCode, and Pi sessions show up as **live executions** on Work with bidirectional messaging. Attaching or launching an execution does not change the Work status. Managed launch prompts identify the active Vector Work, include its linked Request context, and keep the agent inside that Work scope. For managed launches, the CLI owns the provider session directly and syncs agent events back to Convex; terminal/tmux integration is still available for attached shell sessions.
 
 ### Starting the bridge
 
