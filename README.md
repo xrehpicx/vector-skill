@@ -1,4 +1,4 @@
-# Vector CLI Task Management Skill
+# Vector CLI Request, Work, and Task Management Skill
 
 AI agent skill for the [Vector CLI](https://github.com/xrehpicx/vector) (`vcli`) — a command-line interface for [Vector](https://github.com/xrehpicx/vector), an open-source project management platform.
 
@@ -35,7 +35,10 @@ This skill teaches AI agents how to use `vcli`. It covers:
 - **Authentication** — signup, login, logout, session management, profiles
 - **Organizations** — create, manage members, invites, roles
 - **Teams & Projects** — CRUD, member management, leads
-- **Issues** — create, assign, comment, priorities, states, time estimates, sub-issues
+- **Requests** — capture desired outputs, route ownership, link delivery, and review results
+- **Work** — intentional starts, workpads, handoffs, agent executions, attention, and delivery state
+- **Tasks** — lightweight execution steps within Work
+- **Issues (legacy compatibility)** — maintain existing issue-based integrations and records
 - **Documents & Folders** — create, update, move, organize
 - **Roles (RBAC)** — custom roles, permissions, assignment
 - **Notifications** — inbox, preferences, push subscriptions
@@ -57,7 +60,17 @@ vcli org use acme
 
 vcli team create --key eng --name "Engineering"
 vcli project create --key api --name "API" --team eng
-vcli issue create --title "First issue" --project api --team eng
+
+request_json=$(vcli request create \
+  --title "Add usage limits" \
+  --expected-output "Admins can configure and verify per-plan API limits" \
+  --json)
+request_key=$(printf '%s' "$request_json" | jq -r '.requestKey')
+
+vcli work create \
+  --title "Implement usage limits" \
+  --request "$request_key" \
+  --project api
 ```
 
 ## Links

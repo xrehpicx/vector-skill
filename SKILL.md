@@ -1,13 +1,21 @@
 ---
 name: task-management
-description: Task management skill for Vector CLI (vcli) — a command-line interface for Vector, an open-source project management platform. Covers authentication, organizations, teams, projects, issues, documents, roles, notifications, user presence/status, and scripting workflows.
+description: Request, Work, and Task management skill for Vector CLI (vcli), including agent context, execution attribution, handoffs, review, notifications, and legacy Issue compatibility.
 ---
 
 # Vector CLI
 
 Use this skill when a user asks how to use the Vector CLI (`vcli`), needs command examples, or wants to manage their Vector workspace from the terminal.
 
-Vector is an open-source project management platform (similar to Linear). The CLI gives you full access to organizations, teams, projects, issues, documents, roles, notifications, and more.
+Vector is an open-source coordination platform for human and agent work. The CLI gives you full access to Requests, Work, Tasks, organizations, teams, projects, documents, roles, notifications, and more.
+
+The primary delivery model is:
+
+- **Request**: intake, required expected output, routing, and requester review.
+- **Work**: durable outcome context with a live workpad, ownership periods, linked Requests, Tasks, agent executions, and GitHub evidence.
+- **Task**: an optional tracked step within Work. Do not create Tasks for every checklist line; the Work workpad can remain unstructured.
+
+Assignment, Request acceptance, and agent attachment never start Work. Starting is an explicit human action through `vcli work start <key>` or `vcli work status <key> active`.
 
 ## Installation
 
@@ -43,7 +51,7 @@ Every command accepts these flags:
 
 ## List Filtering, Sorting, and Links
 
-All entity list commands (`issue list`, `project list`, `team list`, `document list`, `folder list`) support:
+Legacy and supporting entity list commands (`issue list`, `project list`, `team list`, `document list`, `folder list`) support:
 
 | Flag                      | Description                                              |
 | ------------------------- | -------------------------------------------------------- |
@@ -55,11 +63,24 @@ All entity list commands (`issue list`, `project list`, `team list`, `document l
 
 Documents also support `--updated-after` and `--updated-before` for filtering by last edited time.
 
-List output includes a `url` field linking to each entity in the web app.
+Request and Work lists use purpose-built scopes plus `--limit`:
+
+| Command             | Valid scopes                            | Default  |
+| ------------------- | --------------------------------------- | -------- |
+| `vcli request list` | `inbox`, `mine`, `requested`, or `all`  | `inbox`  |
+| `vcli work list`    | `active`, `mine`, `attention`, or `all` | `active` |
+
+They do not currently expose the generic date and sort flags in the table above.
+
+Request and Work list output, along with the generic entity lists above,
+include a `url` field linking to each entity in the web app.
 
 ```bash
-# Issues created in the last week, newest first
-vcli issue list --created-after 2025-03-10 --sort createdAt --order desc
+# Active Work across the workspace
+vcli work list --scope active
+
+# Work you own
+vcli work list --scope mine
 
 # Top 5 projects by name
 vcli project list --sort name --limit 5
@@ -266,7 +287,126 @@ Clear optional fields with `--clear-*` flags (e.g., `--clear-team`, `--clear-due
 
 ---
 
-## Issues
+## Requests
+
+Every Request requires an expected output. Route it to one or more people, claim it for planning, and attach one or more Work records. None of these actions starts Work.
+
+```bash
+# Inspect intake
+vcli request list --scope inbox
+vcli request list --scope requested
+vcli request get REQ-12
+
+# Create and route an outcome-oriented Request
+vcli request create \
+  --title "Add enterprise SSO" \
+  --description "Customer needs SAML for the admin console" \
+  --expected-output "Admins can configure SAML and users can sign in through it" \
+  --review-guidance "Test with the customer's metadata file" \
+  --recipients "alice@example.com,bob@example.com"
+
+vcli request route REQ-12 "alice@example.com,bob@example.com"
+vcli request claim REQ-12
+
+# A Request can be fulfilled by existing or newly created Work.
+# `fulfills` participates in the requester review roll-up; `contributes`
+# attaches useful context without blocking that roll-up.
+vcli request link-work REQ-12 AUTH-42 --relation fulfills
+vcli request link-work REQ-12 DOCS-7 --relation contributes
+
+# Requester review loop
+vcli request request-changes REQ-12 --note "SCIM provisioning is still missing"
+vcli request complete REQ-12 --note "Validated with the customer configuration"
+```
+
+## Work
+
+Work is the primary execution context. It can deliver several related Requests and hold many Tasks or only an unstructured workpad. Multiple Work records may be active for the same person.
+
+```bash
+vcli work list --scope mine
+vcli work list --scope attention
+vcli work get AUTH-42
+
+vcli work create \
+  --title "Enterprise identity rollout" \
+  --workpad "Notes, decisions, and a live checklist" \
+  --owner alice@example.com \
+  --request "REQ-12,REQ-18" \
+  --effort l
+
+# Explicit intent: assignment alone is not execution
+vcli work start AUTH-42
+
+# Pause/resume and make blockers visible
+vcli work status AUTH-42 waiting
+vcli work status AUTH-42 blocked
+vcli work status AUTH-42 active
+
+# Fetch bounded context before an agent acts
+vcli work context AUTH-42
+vcli work context AUTH-42 --task 3
+
+# Ask a human to look. Agents should pass their live execution id.
+vcli work attention AUTH-42 \
+  --title "Choose redirect behavior" \
+  --details "Both options affect existing tenants" \
+  --task 3 \
+  --execution <liveActivityId>
+
+# The current owner stays accountable until the next owner accepts.
+vcli work handoff AUTH-42 bob@example.com \
+  --summary "SAML backend is complete; admin UI remains" \
+  --note "Start from Task #4"
+
+# The incoming owner runs this. Get the pending handoff id from their
+# notification, from the proposer, or from `vcli work context AUTH-42`
+# (the `handoffs` entries include their ids).
+vcli work respond-handoff <handoffId> --accept true
+
+# The incoming owner also runs this: acceptance does not start their ownership
+# period. Start it explicitly even when aggregate Work stayed active.
+vcli work start AUTH-42
+
+vcli work ready-for-review AUTH-42
+vcli work complete AUTH-42
+```
+
+`work context` returns linked Requests and their expected outputs, Tasks, ownership and handoff history, blockers, open attention requests, GitHub development evidence, recent activity, and attached executions. Prefer it over assembling context from unrelated workspace searches.
+
+## Tasks
+
+Tasks are optional tracked units under Work. Use them when assignment, status, a blocker, or agent attribution matters; keep lightweight notes and checklists in the Work workpad.
+
+```bash
+vcli task list AUTH-42
+vcli task create AUTH-42 --title "Build metadata endpoint" --assignee alice@example.com
+
+# Agents must pass their actual Vector live activity id. This records agent
+# attribution and enforces the Work's allow / approval_required / deny policy.
+vcli task create AUTH-42 \
+  --title "Add SAML integration tests" \
+  --execution <liveActivityId>
+
+vcli task status AUTH-42 2 in_progress
+vcli task status AUTH-42 2 waiting
+vcli task status AUTH-42 2 blocked
+vcli task status AUTH-42 2 done
+vcli task assign AUTH-42 2 bob@example.com
+vcli task assign AUTH-42 2  # Clear assignee
+```
+
+Never invent an execution id or attribute a human-created Task to an agent. If no live execution is available, omit `--execution`; the Task is recorded as human/CLI-created.
+
+The CLI and backend expose this identifier as a live activity id
+(`liveActivityId`); product UI and this skill call the same record an agent
+execution.
+
+---
+
+## Legacy Issues
+
+Issue commands remain for backwards compatibility while existing integrations migrate. For new workflows, use Request, Work, and Task commands above.
 
 ### CRUD
 
@@ -337,11 +477,11 @@ vcli issue link-github API-2 "https://github.com/acme/api/pull/123"
 vcli issue create --title "Sub-task" --parent API-1 --project api
 ```
 
-### Agent Bridge Service
+## Agent Bridge Service
 
-The bridge connects local developer machines to Vector. Local Codex, Claude Code, Cursor, GitHub Copilot, OpenCode, and Pi sessions show up as **live activities** on issues with bidirectional messaging. For managed launches, the CLI owns the provider session directly and syncs agent events back to Convex; terminal/tmux integration is still available for attached shell sessions.
+The bridge connects local developer machines to Vector. Local Codex, Claude Code, Cursor, GitHub Copilot, OpenCode, and Pi sessions show up as **live executions** on Work with bidirectional messaging. Attaching or launching an execution does not change the Work status. For managed launches, the CLI owns the provider session directly and syncs agent events back to Convex; terminal/tmux integration is still available for attached shell sessions.
 
-#### Starting the bridge
+### Starting the bridge
 
 ```bash
 # Log in first
@@ -354,10 +494,11 @@ vcli service start
 vcli bridge start
 ```
 
-#### Service management
+### Service management
 
 ```bash
-vcli service start      # Run bridge in foreground
+vcli service start      # Register the device and start the background service
+vcli service run        # Run the bridge in the foreground
 vcli service stop       # Stop the bridge
 vcli service status     # Show bridge status
 vcli service install    # Install as macOS LaunchAgent
@@ -369,23 +510,23 @@ vcli bridge stop        # Stop + uninstall
 vcli bridge status      # Quick status check
 ```
 
-#### How it works
+### How it works
 
 The bridge runs as a local Node.js process using `ConvexHttpClient`:
 
 - **Heartbeat** (30s): Keeps the device marked as online
-- **Command polling** (5s): Picks up messages sent from the Vector issue page
+- **Command polling** (5s): Picks up messages sent from the Vector Work page
 - **Agent event sync**: Sends assistant, reasoning, tool, status, auth, compaction, and error events from local agent sessions back to Convex
 - **Cells-style session state**: Syncs model, permission mode, thinking level, fast mode, context length, queued messages, pending approvals, pending questions, plans, and usage through Convex
 - **Process discovery** (60s): Finds local agent/tmux processes via `ps`
-- **Live activity cache** (30s): Writes `~/.vector/live-activities.json` for the macOS menu bar
+- **Live activity cache** (5s): Writes `~/.vector/live-activities.json` for the macOS menu bar
 
-#### macOS menu bar
+### macOS menu bar
 
 A native Swift status bar app shows the Vector icon with:
 
 - Bridge status (running/offline)
-- List of active agent sessions with issue keys (click to open in Vector)
+- List of active agent sessions with Work keys (click to open in Vector)
 - Start/Stop/Restart controls
 
 ```bash
@@ -398,7 +539,7 @@ cd cli/macos && swiftc -o VectorMenuBar VectorMenuBar.swift -framework AppKit
 
 Auto-installed as a LaunchAgent via `vcli service install`.
 
-#### Configuration
+### Configuration
 
 All bridge state lives in `~/.vector/`:
 
@@ -410,11 +551,11 @@ All bridge state lives in `~/.vector/`:
 | `live-activities.json` | Cached sessions for menu bar     |
 | `cli-default.json`     | CLI auth session                 |
 
-#### Architecture reference
+### Architecture reference
 
 See `docs/architecture/agent-device-bridge/README.md` for the full data model, flows, and security details.
 
-#### Agent branding
+### Agent branding
 
 - Internal provider key: `codex` — visible label: `Codex`
 - Internal provider key: `claude_code` — visible label: `Claude` or `Claude Agent`
@@ -679,7 +820,10 @@ vcli org create --name "Acme" --slug acme
 vcli org use acme
 vcli team create --key eng --name "Engineering"
 vcli project create --key api --name "API" --team eng
-vcli issue create --title "First issue" --project api --team eng
+REQUEST_KEY="$(vcli --json request create \
+  --title "First request" \
+  --expected-output "A delivered, reviewable outcome" | jq -r '.requestKey')"
+vcli work create --title "Deliver the first request" --request "$REQUEST_KEY"
 vcli auth whoami
 ```
 
@@ -708,8 +852,8 @@ vcli permission check issue:create         # Verify permissions
 
 ```bash
 # Pipe to jq for structured processing
-vcli --json issue list --org acme | jq '.[].title'
-vcli --json notification inbox --filter unread | jq 'length'
+vcli --json work list --org acme | jq '.[].title'
+vcli --json notification inbox --filter unread | jq '.page | length'
 ```
 
 Tips for scripting:
