@@ -355,10 +355,14 @@ vcli work attention AUTH-42 \
 vcli work handoff AUTH-42 bob@example.com \
   --summary "SAML backend is complete; admin UI remains" \
   --note "Start from Task #4"
+
+# The incoming owner runs this. Get the pending handoff id from their
+# notification, from the proposer, or from `vcli work context AUTH-42`
+# (the `handoffs` entries include their ids).
 vcli work respond-handoff <handoffId> --accept true
 
-# Acceptance does not start the new owner's period. Start it explicitly even
-# when the aggregate Work remained active through the handoff.
+# The incoming owner also runs this: acceptance does not start their execution
+# period. Start it explicitly even when aggregate Work stayed active.
 vcli work start AUTH-42
 
 vcli work ready-for-review AUTH-42
