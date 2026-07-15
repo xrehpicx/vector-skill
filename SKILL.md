@@ -361,7 +361,7 @@ vcli work handoff AUTH-42 bob@example.com \
 # (the `handoffs` entries include their ids).
 vcli work respond-handoff <handoffId> --accept true
 
-# The incoming owner also runs this: acceptance does not start their execution
+# The incoming owner also runs this: acceptance does not start their ownership
 # period. Start it explicitly even when aggregate Work stayed active.
 vcli work start AUTH-42
 
