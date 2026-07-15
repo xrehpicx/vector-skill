@@ -72,7 +72,8 @@ Request and Work lists use purpose-built scopes plus `--limit`:
 
 They do not currently expose the generic date and sort flags in the table above.
 
-List output includes a `url` field linking to each entity in the web app.
+Work list output and the generic entity lists above include a `url` field
+linking to each entity in the web app. Request list output currently does not.
 
 ```bash
 # Active Work across the workspace
