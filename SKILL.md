@@ -516,8 +516,11 @@ The bridge connects local developer machines to Vector. Local Codex, Claude Code
 # Log in first
 vcli auth login
 
-# Start the bridge service (registers device, heartbeats, discovers processes)
+# Start the bridge service (registers device, repairs the LaunchAgent, and restarts it)
 vcli service start
+
+# Select the daemon account explicitly; this also becomes the default profile
+vcli --profile work service start
 
 # Or install as a macOS LaunchAgent (auto-starts on login)
 vcli bridge start
@@ -529,7 +532,7 @@ vcli bridge start
 vcli service start      # Register the device and start the background service
 vcli service run        # Run the bridge in the foreground
 vcli service stop       # Stop the bridge
-vcli service status     # Show bridge status
+vcli service status     # Show running, degraded, starting, or stopped status
 vcli service install    # Install as macOS LaunchAgent
 vcli service uninstall  # Remove LaunchAgent
 vcli service logs       # Tail bridge logs
@@ -560,13 +563,19 @@ A native Swift status bar app shows the Vector icon with:
 
 ```bash
 # Build (requires Xcode CLI tools)
-cd cli/macos && swiftc -o VectorMenuBar VectorMenuBar.swift -framework AppKit
+pnpm --filter @rehpic/vcli build
 
 # Run
-./VectorMenuBar
+open packages/vector-cli/native/VectorMenuBar.app
 ```
 
 Auto-installed as a LaunchAgent via `vcli service install`.
+
+The menu bar uses the active CLI profile. Selecting another profile restarts
+and reconciles the bridge. Automatic updates are opt-in and follow the stable
+`latest` npm channel; use `vcli update` to update explicitly. Running
+`vcli service start` is also the repair command after Node or the global CLI
+installation moves.
 
 ### Configuration
 
@@ -800,6 +809,7 @@ Customize your workspace metadata:
 vcli state list
 vcli state create --name "In Review" --position 3 --type in_progress --color "#F59E0B" --icon eye
 vcli state update <state> --name "Reviewing" --position 3 --type in_progress --color "#F59E0B"
+vcli state update <state> --name "Reviewing" --position 3 --type in_progress --color "#F59E0B" --clear-icon
 vcli state delete <state>
 vcli state reset  # Reset to defaults
 
@@ -807,6 +817,7 @@ vcli state reset  # Reset to defaults
 vcli priority list
 vcli priority create --name "Critical" --weight 5 --color "#EF4444" --icon alert-triangle
 vcli priority update <priority> --name "Blocker" --color "#DC2626"
+vcli priority update <priority> --name "Blocker" --color "#DC2626" --clear-icon
 vcli priority delete <priority>
 vcli priority reset  # Reset to defaults
 
@@ -814,6 +825,7 @@ vcli priority reset  # Reset to defaults
 vcli status list
 vcli status create --name "On Hold" --position 3 --type planned --color "#6B7280" --icon pause
 vcli status update <status> --name "Paused" --position 3 --type planned --color "#6B7280"
+vcli status update <status> --name "Paused" --position 3 --type planned --color "#6B7280" --clear-icon
 vcli status delete <status>
 vcli status reset  # Reset to defaults
 ```
