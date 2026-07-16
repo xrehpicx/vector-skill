@@ -23,16 +23,26 @@ The primary model is:
 
 For every request that may require tracked work:
 
-1. Detect a Vector Request or Work key or URL in the message.
-2. If Work is explicit, run `vcli work context <key>` before planning or acting.
-3. If no Work is explicit, inspect likely existing Work before creating any:
-   use `vcli work list --scope mine`, `vcli work list --scope active`, and
-   focused `vcli search` queries.
-4. Reuse Work when the outcome, project/team, ownership, repository evidence,
+1. Detect a Vector workspace/organization, Request, or Work key or URL in the message.
+2. Resolve the workspace before reading or mutating data. Prefer, in order: the
+   org slug in a Vector URL, an explicit user choice, the workspace of referenced
+   Request/Work, or the only available membership. For a bare key with no slug,
+   run `vcli org list` and probe the key read-only with explicit `--org` values;
+   proceed only when exactly one workspace matches. If new work could belong to
+   multiple workspaces, ask instead of using the profile's last active org.
+3. Store the resolved slug as `ORG` and pass `vcli --org "$ORG"` on every
+   Request, Work, Task, watcher, attachment, search, and metadata command for
+   this job. Do not run `org use` merely to change context for one job.
+4. If Work is explicit, run `vcli --org "$ORG" work context <key>` before planning or acting.
+5. If no Work is explicit, inspect likely existing Work before creating any:
+   use `vcli --org "$ORG" work list --scope mine`, `vcli --org "$ORG" work list --scope active`, and
+   focused `vcli --org "$ORG" search` queries.
+6. Reuse Work when the outcome, project/team, ownership, repository evidence,
    and current activity show it is the same delivery context.
-5. Otherwise create a Request with a concrete expected output, then create new
-   Work linked to that Request.
-6. Keep new follow-up instructions attached to the chosen Work. Link a new
+7. Otherwise create a Request with a concrete expected output using
+   `vcli --org "$ORG" request create`, then create new Work in the same explicit
+   workspace and link it to that Request.
+8. Keep new follow-up instructions attached to the chosen Work. Link a new
    Request when the instruction introduces a separately reviewable expected
    output; use a Task or workpad update for an execution detail within the
    existing outcome.
@@ -49,18 +59,19 @@ conversation clearly makes it informational.
 
 After resolving the key:
 
-1. Run `vcli auth whoami` and `vcli work context <key>`.
+1. Run `vcli auth whoami`, resolve `ORG` as described above, and run
+   `vcli --org "$ORG" work context <key>`.
 2. Read linked Requests and expected outputs, Tasks, workpad, blockers,
    attention items, ownership periods, handoffs, agent executions, recent
    activity, and GitHub evidence.
 3. Reconcile the user's newest instruction with that context. The newest
    explicit instruction wins where it intentionally changes scope; preserve
    unrelated accepted requirements.
-4. Explicitly start/resume Work with `vcli work start <key>` when the link and
+4. Explicitly start/resume Work with `vcli --org "$ORG" work start <key>` when the link and
    request communicate execution intent. Assignment or attachment alone is not
    enough.
 5. When execution begins inside a supported local agent, attach the current
-   agent session with `vcli --json work attach-session <key>`. Keep the returned
+   agent session with `vcli --org "$ORG" --json work attach-session <key>`. Keep the returned
    real `liveActivityId` as the execution ID for Task and attention commands.
    The command is idempotent for the same active session; never invent an ID.
    If attachment reports that the bridge is not configured or not running, run
@@ -75,9 +86,9 @@ When Work was handed off to the current user:
 2. Inspect the latest handoff status, summary, note, referenced Task, completed
    work, open blockers, attached execution, branch, and PR evidence.
 3. If the handoff is pending and the user's request/link clearly asks to take
-   over or continue, accept it with `vcli work respond-handoff <id> --accept true`.
+   over or continue, accept it with `vcli --org "$ORG" work respond-handoff <id> --accept true`.
    If intent is unclear, explain the pending handoff and ask before accepting.
-4. Run `vcli work start <key>` after acceptance. Accepting a handoff does not
+4. Run `vcli --org "$ORG" work start <key>` after acceptance. Accepting a handoff does not
    start the new ownership period.
 5. Resume at the stated Task or next unfinished boundary; do not restart the
    Work or discard the prior owner's context.
@@ -99,7 +110,7 @@ pass, external dependency, blocker, parallel owner, or handoff boundary.
 
 ## Keep Work as Live Context
 
-Refresh `vcli work context <key>` at meaningful boundaries: before planning,
+Refresh `vcli --org "$ORG" work context <key>` at meaningful boundaries: before planning,
 before starting a Task, after a watcher event, before publishing delivery, and
 before responding to a follow-up.
 
@@ -109,7 +120,7 @@ the wait condition is deliberately smaller.
 
 - Prefer a native background/heartbeat automation when the agent environment
   supports one.
-- Otherwise keep `vcli --json work watch <key>` running in a background terminal
+- Otherwise keep `vcli --org "$ORG" --json work watch <key>` running in a background terminal
   that the harness can observe.
 - For scheduled wakeups, use `--once --timeout <seconds>` and relaunch through
   the environment's recurring mechanism instead of shell polling.
@@ -139,7 +150,7 @@ For code-related Work:
 1. Inspect GitHub evidence in `work context` before creating a branch or PR.
 2. Reuse the existing open PR and branch when they represent this Work.
 3. Otherwise create a focused PR and link it to Work with
-   `vcli issue link-github <workKey> <prUrl>` (legacy command name; Work uses the
+   `vcli --org "$ORG" issue link-github <workKey> <prUrl>` (legacy command name; Work uses the
    same underlying record).
 4. Mention the Work key/URL in the PR title or body when repository conventions
    allow it.
@@ -170,5 +181,7 @@ complete on the requester's behalf unless that action is clearly authorized.
   or diagnosing local agent sessions, execution attribution, or the Vector
   bridge service.
 
-Use `--json` for scripting, explicit `--profile` and `--org` when ambiguity is
-possible, and `vcli refdata` before guessing workspace keys or metadata.
+Use `--json` for scripting. For agent-managed Request/Work, always use explicit
+`--profile` when profiles are ambiguous and explicit `--org` after resolving the
+workspace; never treat the last active org as evidence. Run `vcli --org "$ORG" refdata`
+before guessing workspace keys or metadata.
