@@ -46,6 +46,13 @@ vcli work get AUTH-42
 vcli work context AUTH-42
 vcli work context AUTH-42 --task 3
 
+# Attach the current Codex/Claude session to Work
+vcli work attach-session AUTH-42
+vcli --json work attach-session AUTH-42 --task 3
+
+# Use an explicit detected session only when auto-detection is ambiguous
+vcli work attach-session AUTH-42 --session <sessionKey>
+
 vcli work create \
   --title "Enterprise identity rollout" \
   --workpad "Notes, decisions, and live checklist" \
@@ -60,6 +67,14 @@ vcli work status AUTH-42 active
 vcli work ready-for-review AUTH-42
 vcli work complete AUTH-42
 ```
+
+`work attach-session` requires a configured, running bridge. If it fails for
+that reason, run `vcli service start`, confirm `vcli service status`, and retry
+the attachment. It identifies the calling agent from its stable session ID or
+process ancestry, reports it to the device, and attaches it idempotently to
+Work. JSON output includes the real `liveActivityId`; retain that value for
+`--execution`. Different local sessions can attach to the same Work and appear
+as separate Work Sessions.
 
 Valid effort values are `unknown`, `xs`, `s`, `m`, and `l`. Work may also take
 `--project` and `--due-date` at creation.

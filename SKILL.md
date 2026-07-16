@@ -59,6 +59,13 @@ After resolving the key:
 4. Explicitly start/resume Work with `vcli work start <key>` when the link and
    request communicate execution intent. Assignment or attachment alone is not
    enough.
+5. When execution begins inside a supported local agent, attach the current
+   agent session with `vcli --json work attach-session <key>`. Keep the returned
+   real `liveActivityId` as the execution ID for Task and attention commands.
+   The command is idempotent for the same active session; never invent an ID.
+   If attachment reports that the bridge is not configured or not running, run
+   `vcli service start`, verify it with `vcli service status`, and retry the
+   attachment before continuing.
 
 ## Resume Incoming Handoffs
 
@@ -116,6 +123,14 @@ the wait condition is deliberately smaller.
 If the environment cannot maintain a background watcher after the current
 session ends, say so and leave the Work in an accurate state instead of
 claiming it is still monitored.
+
+The local Vector bridge must be running for session attachment and inbound
+messages. An attachment failure caused by an unconfigured or stopped bridge is
+an instruction to run `vcli service start`, confirm `vcli service status`, and
+retry—not a reason to omit the Work Session. On macOS the service then starts at
+login and restarts after failures. Each agent session attaches independently,
+so multiple agents can appear on the same Work and receive messages from the
+web or iOS Work page.
 
 ## Deliver Code Through One Linked PR
 

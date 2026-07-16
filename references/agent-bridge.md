@@ -45,7 +45,29 @@ The service maintains a device heartbeat, polls commands, syncs agent events
 and session state, discovers local processes, and updates the live activity
 cache. Messages sent from a Work page can resume supported attached sessions.
 
-Pass the actual `liveActivityId` to Task and attention commands when available.
+When an agent starts acting on Work, attach the current session:
+
+```bash
+vcli --json work attach-session AUTH-42
+vcli --json work attach-session AUTH-42 --task 3
+```
+
+The bridge must be running. If attachment says it is not configured or not
+running, set it up and retry:
+
+```bash
+vcli service start
+vcli service status
+vcli --json work attach-session AUTH-42
+```
+
+Auto-detection prefers the stable agent session ID and then process ancestry;
+use `--session <sessionKey>` only when the CLI reports ambiguity. Repeating the
+command for the same active session is safe. Each distinct agent session creates
+its own Work Session, and supported Codex and Claude sessions can receive
+messages from the web and iOS Work pages.
+
+Pass the returned `liveActivityId` to Task and attention commands when available.
 This records agent provenance and applies the Work agent policy.
 
 The macOS menu bar lists bridge status and active agent sessions with Work keys.
