@@ -141,7 +141,9 @@ an instruction to run `vcli service start`, confirm `vcli service status`, and
 retry—not a reason to omit the Work Session. On macOS the service then starts at
 login and restarts after failures. Each agent session attaches independently,
 so multiple agents can appear on the same Work and receive messages from the
-web or iOS Work page.
+web or iOS Work page. The CLI refreshes moved backend endpoints from the saved
+Vector app URL; after an environment migration, `vcli service start` also
+repairs the saved device registration before attachment.
 
 ## Deliver Code Through One Linked PR
 
