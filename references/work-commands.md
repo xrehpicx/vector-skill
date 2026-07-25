@@ -29,16 +29,21 @@ vcli --org "$ORG" request create \
   --review-guidance "Validate with customer metadata" \
   --recipients "alice@example.com,bob@example.com"
 
-vcli --org "$ORG" request route REQ-12 "alice@example.com,bob@example.com"
+# For a Request the current agent created and will execute, claim it before
+# creating or starting Work, attaching a session, implementing, or publishing.
 vcli --org "$ORG" request claim REQ-12
+
+vcli --org "$ORG" request route REQ-12 "alice@example.com,bob@example.com"
 vcli --org "$ORG" request link-work REQ-12 AUTH-42 --relation fulfills
 vcli --org "$ORG" request link-work REQ-12 DOCS-7 --relation contributes
 vcli --org "$ORG" request request-changes REQ-12 --note "SCIM is still missing"
 vcli --org "$ORG" request complete REQ-12 --note "Validated with the requester"
 ```
 
-Every Request requires `--expected-output`. Routing, claiming, or linking a
-Request never starts Work.
+Every Request requires `--expected-output`. An agent that creates a Request for
+its own execution must claim it immediately, before beginning Work or publishing
+delivery; `request claim` assigns the authenticated profile as planning owner.
+Routing, claiming, or linking a Request never starts Work.
 
 ## Work
 

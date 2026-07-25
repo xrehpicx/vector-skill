@@ -27,7 +27,11 @@ Treat the user's message as intake, then choose the durable execution context.
    choosing incorrectly would change ownership or scope, ask one concise
    question.
 6. For genuinely new work, create the Request first so the user's expected
-   output remains reviewable. Create Work linked to that Request.
+   output remains reviewable. Immediately claim it with `vcli --org "$ORG"
+   request claim <requestKey>` to assign planning accountability to the
+   authenticated agent profile. Do this before creating or starting Work,
+   attaching an agent session, implementing, or publishing delivery. Create
+   Work linked to the claimed Request.
 
 Use `fulfills` when Work is responsible for delivering the Request's expected
 output. Use `contributes` when Work supplies context or a partial contribution

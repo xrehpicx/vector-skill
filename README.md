@@ -67,6 +67,8 @@ request_json=$(vcli request create \
   --json)
 request_key=$(printf '%s' "$request_json" | jq -r '.requestKey')
 
+vcli request claim "$request_key"
+
 vcli work create \
   --title "Implement usage limits" \
   --request "$request_key" \

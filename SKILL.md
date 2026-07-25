@@ -40,8 +40,12 @@ For every request that may require tracked work:
 6. Reuse Work when the outcome, project/team, ownership, repository evidence,
    and current activity show it is the same delivery context.
 7. Otherwise create a Request with a concrete expected output using
-   `vcli --org "$ORG" request create`, then create new Work in the same explicit
-   workspace and link it to that Request.
+   `vcli --org "$ORG" request create`. Immediately claim it with
+   `vcli --org "$ORG" request claim <requestKey>` so the authenticated agent
+   profile owns planning accountability. Claim the Request before creating or
+   starting Work, attaching a session, doing implementation, or publishing any
+   delivery. Then create new Work in the same explicit workspace and link it to
+   that Request.
 8. Keep new follow-up instructions attached to the chosen Work. Link a new
    Request when the instruction introduces a separately reviewable expected
    output; use a Task or workpad update for an execution detail within the
