@@ -22,6 +22,7 @@ events and session state back to Vector.
 
 ```bash
 vcli auth login
+vcli service configure
 vcli service start
 vcli service run
 vcli service stop
@@ -38,6 +39,11 @@ vcli bridge status
 Use `vcli --profile work service start` to select the daemon account and make
 that profile the default. `service start` also repairs the service after Node or
 the global CLI installation moves.
+
+Use `vcli --profile work service configure` when a foreground or development
+process needs a registered device without installing, starting, stopping, or
+replacing the operating-system service. Then run `vcli service run` in that
+same profile and `VECTOR_HOME`.
 
 ## Execution Behavior
 
@@ -85,6 +91,12 @@ Bridge state is stored under `~/.vector/`:
 | `bridge.log`           | Service output in LaunchAgent mode      |
 | `live-activities.json` | Cached sessions for the menu bar        |
 | `cli-default.json`     | Default-profile authentication session  |
+
+Set `VECTOR_HOME` to an isolated directory before `service configure` and
+`service run` when testing a development checkout. This keeps its device
+identity, credentials, PID, logs, and menu state separate from the installed
+CLI. Set `VECTOR_DISABLE_MENU_BAR=1` for that foreground development process so
+it does not launch a second tray application alongside the installed service.
 
 ## Provider Requirements
 
