@@ -191,3 +191,8 @@ Use `--json` for scripting. For agent-managed Request/Work, always use explicit
 `--profile` when profiles are ambiguous and explicit `--org` after resolving the
 workspace; never treat the last active org as evidence. Run `vcli --org "$ORG" refdata`
 before guessing workspace keys or metadata.
+
+When diagnosing connectivity, use the operation, host, and nested DNS/socket
+cause emitted by current `vcli` releases. The CLI configures Node's dual-stack
+fallback process-wide and prefers IPv4 when both families are published, so do
+not add `NODE_OPTIONS=--dns-result-order=ipv4first` as a per-command workaround.

@@ -162,3 +162,10 @@ Common fixes:
 | Wrong-server auth error | Verify the app URL and selected profile       |
 | Convex connection error | Verify auto-resolution or pass `--convex-url` |
 | Validation error        | Use `vcli refdata` and check required options |
+
+Current releases enable Node's dual-stack address fallback process-wide and
+prefer IPv4 when both address families are published; do not prefix individual
+commands with `NODE_OPTIONS=--dns-result-order=ipv4first`. Transport errors name
+the failing app or Convex host and retain nested causes such as `ENOTFOUND`,
+`ENETUNREACH`, and `ETIMEDOUT`; use those details to distinguish DNS, routing,
+and timeout failures.
