@@ -149,6 +149,14 @@ web or iOS Work page. The CLI refreshes moved backend endpoints from the saved
 Vector app URL; after an environment migration, `vcli service start` also
 repairs the saved device registration before attachment.
 
+CLI HTTP requests use scoped IPv6/IPv4 address-family fallback and a bounded
+request timeout; do not require users to set a global `NODE_OPTIONS` DNS
+override. If a network request fails, preserve the reported operation,
+sanitized endpoint, and socket context when diagnosing it. For a bridge that is
+visible in the tray but not delivering commands, verify `vcli service status`,
+run `vcli service start` to repair/reload the local service, and confirm that
+the next command poll completes rather than remaining blocked on one request.
+
 ## Deliver Code Through One Linked PR
 
 For code-related Work:
