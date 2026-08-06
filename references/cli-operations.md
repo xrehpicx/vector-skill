@@ -163,7 +163,7 @@ Common fixes:
 | Convex connection error | Verify auto-resolution or pass `--convex-url` |
 | Validation error        | Use `vcli refdata` and check required options |
 
-Current releases enable Node's dual-stack address fallback process-wide and
+`vcli` 0.1.4 and later enable Node's dual-stack address fallback process-wide and
 prefer IPv4 when both address families are published; do not prefix individual
 commands with `NODE_OPTIONS=--dns-result-order=ipv4first`. Transport errors name
 the failing app or Convex host and retain nested causes such as `ENOTFOUND`,

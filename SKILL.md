@@ -193,6 +193,6 @@ workspace; never treat the last active org as evidence. Run `vcli --org "$ORG" r
 before guessing workspace keys or metadata.
 
 When diagnosing connectivity, use the operation, host, and nested DNS/socket
-cause emitted by current `vcli` releases. The CLI configures Node's dual-stack
+cause emitted by `vcli` 0.1.4 and later. The CLI configures Node's dual-stack
 fallback process-wide and prefers IPv4 when both families are published, so do
 not add `NODE_OPTIONS=--dns-result-order=ipv4first` as a per-command workaround.
